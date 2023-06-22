@@ -137,5 +137,18 @@ router.get('/student/notAnswered',Auth,async(req,res)=>{
   }
 })
 
+// get my notification
+router.get('/student/notification',Auth,async(req,res)=>{
+  let notification=req.student.notifications
+  try{
+    req.student.notifications=[]
+    req.student.save()
+    res.status(200).send(notification)
+  }catch(e){
+    console.log(e)
+    res.send(e) 
+  }
+})
+
 
 module.exports=router
