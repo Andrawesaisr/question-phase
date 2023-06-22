@@ -2,13 +2,14 @@ const jwt=require('jsonwebtoken')
 const Prof=require('../models/prof')
 const Auth= async function(req,res,next){
  try {  
+    if(!req.header('Authorization')){
+        return res.status(401).send('not Authorized')
+      }
     const authorizationHeader = req.header('Authorization'); 
     if (!authorizationHeader) {
       return res.status(401).send('Authorization header missing');
     }
-    console.log(authorizationHeader)
     const token = authorizationHeader.split(' ')[1];
-    console.log(token)
     const decode=jwt.verify(token,process.env.AUTH_KEY)
     const prof= await Prof.findOne({_id:decode._id,'tokens.token':token})
     if(!prof){

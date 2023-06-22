@@ -37,7 +37,21 @@ const profSchema= new Schema({
             type:String,
             required:true
         }
-    }]
+    }],
+    notification:[
+        {
+            student_name:{
+                type:String,
+                required:true
+            },
+            question:{
+                type:String,
+                required:true
+            },date:{
+                type:String
+            }
+        }
+    ]
 })
 
 

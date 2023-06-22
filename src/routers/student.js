@@ -70,22 +70,35 @@ router.post('/student/signout',Auth,async (req,res)=>{
 // send question
 router.post('/student/question',Auth,async (req,res)=>{
   const{profEmail,question}=req.body
-  const checkEmail=await Prof.findOne({email:profEmail})
-  if(!checkEmail){
+  const prof=await Prof.findOne({email:profEmail})
+  if(!prof){
     res.send('the prof email is invalid')
+  }
+  
+  let checkExist=await Question.findOne({question:question})
+  if(checkExist){
+    return res.send('this question was asked before !!')
   }
   const q={
     'question':question,
     'prof_email':profEmail,
     'student_name':req.student.name,
     'student_email':req.student.email,
+    'answer':'',
     'send_date': new Date().toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) 
   }
 
   try{
     const newQ=new Question(q)
+    prof.notification=prof.notification.concat({
+      'student_name':req.student.name,
+      'question':question,
+      'date': new Date().toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) 
+    })
+    await prof.save()
     await newQ.save()
-    res.status(200).send('the question sent successfully',info)
+
+    res.status(200).send('the question added successfully')
   }catch(e){
     console.log(e)
     res.send(e) 
@@ -93,12 +106,36 @@ router.post('/student/question',Auth,async (req,res)=>{
 
 })
 
-// // get my answered question
-// router.get()
+// get my answered question
+router.get('/student/answered',Auth,async(req,res)=>{
+  let all=await Question.find({student_email:req.student.email})
+  let answered=all.filter((question)=>question.answer!=='')
+  try{
+    if(answered.length ===0){
+      return res.send('No questions have been answered yet !!')
+    }
+    res.status(200).send(answered)
+  }catch(e){
+    console.log(e)
+    res.send(e)
+  }
+})
 
 
-// // get my not answered question
-// router.get()
+// get my not answered question
+router.get('/student/notAnswered',Auth,async(req,res)=>{
+  let all= await Question.find({student_email:req.student.email})
+  let notAnswered=all.filter((question)=>question.answer=='')
+  try{
+    if(notAnswered.length ===0){
+      return res.send('all the questions are answered!!')
+    }
+    res.status(200).send(notAnswered)
+  }catch(e){
+    console.log(e)
+    res.send(e) 
+  }
+})
 
 
 module.exports=router

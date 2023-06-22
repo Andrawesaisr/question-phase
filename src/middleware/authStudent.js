@@ -3,6 +3,9 @@ const Student=require('../models/student')
 
 const Auth = async function (req, res, next) {
   try {
+    if(!req.header('Authorization')){
+      return res.status(401).send('not Authorized')
+    }
     const authorizationHeader = req.header('Authorization'); 
     if (!authorizationHeader) {
       return res.status(401).send('Authorization header missing');

@@ -69,7 +69,17 @@ router.post('/prof/signout',Auth,async (req,res)=>{
     }
 })
 
-
+router.get('/prof/notification',Auth,async(req,res)=>{
+    let notifications=req.prof.notification
+    req.prof.notification=[]
+    try{
+    req.prof.save()
+    res.status(200).send(notifications)
+    }catch(e){
+        console.log(e)
+        res.send(e)
+    }
+})
 
 
 module.exports=router
